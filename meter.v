@@ -31,7 +31,6 @@ module meter(
     output [6:0] seg,
     output [3:0] an
     );
-    
     wire add10, add180, add200, add550;             //  debounced inputs
     wire disp_clk;                                  //  approx. 60Hz, for FSM
     wire pulse_clk;                                 //  50% duty cycle, period 2 seconds

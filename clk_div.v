@@ -34,21 +34,30 @@ module clk_div(
                            
     reg [25:0] ROT_COUNT;  //   2 seconds per clk
            //reg [1:0] COUNT; 
-    reg [30:0] N_COUNT;        
+    reg [30:0] N_COUNT;
+    //reg N_COUNT;        
             
             assign disp_clk = COUNT[19]; // real
             
             assign n_clk = (N_COUNT == 31'd2000000000);
+            //assign n_clk = (N_COUNT);
             //assign d_clk = COUNT[1]; // simulation 
+            
+            initial begin
+            N_COUNT <= 0;
+            COUNT <= 0;
+            SEC_COUNT <= 0;
+            end
+            
             
             always @ (posedge clk)
                 begin
                 if( SEC_COUNT == 50000000 )
-                    SEC_COUNT = 0;
+                    SEC_COUNT <= 0;
                 else SEC_COUNT <= SEC_COUNT + 1;
                 COUNT <= COUNT + 1;
-                if( N_COUNT == 2000000000 )
-                    N_COUNT = 0;
+                if( N_COUNT == 2000000000 ) //  2000000000
+                    N_COUNT <= 0;
                 else N_COUNT <= N_COUNT + 1;
             
             end 
