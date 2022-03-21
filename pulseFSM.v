@@ -23,7 +23,7 @@
 module pulseFSM(
     input clk,
     input pulse,
-    input [13:0] BCOUNT,
+    input flash,
     input [15:0] COUNT,
     output [3:0] an,
     output [6:0] seg
@@ -33,8 +33,8 @@ module pulseFSM(
     reg [6:0] seg_reg;
     reg [1:0] state;
     reg [1:0] next_state;
-    reg [6:0] in0, in1, in2, in3;
-    assign an = (BCOUNT > 200)? (an_reg & pulse): an_reg;
+    wire [6:0] in0, in1, in2, in3;
+    assign an = flash? (an_reg & pulse): an_reg;
     assign seg = seg_reg;
     
     hex_to_sseg bit0(.x(COUNT[3:0]), .r(in0));
@@ -60,19 +60,19 @@ module pulseFSM(
     case(state)
         2'b00: begin
             an_reg = 4'b1110;
-            seg_reg = an[0];
+            seg_reg = in0;
             end
         2'b01: begin
             an_reg = 4'b1101;
-            seg_reg = an[1];
+            seg_reg = in1;
             end
         2'b10: begin
             an_reg = 4'b1011;
-            seg_reg = an[2];
+            seg_reg = in2;
             end
         2'b11: begin
             an_reg = 4'b0111;
-            seg_reg = an[3];
+            seg_reg = in3;
             end
     endcase
     end

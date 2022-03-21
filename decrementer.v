@@ -22,6 +22,6 @@
 
 module decrementer(
     input clk,
-    inout BCOUNT
+    inout [13:0] BCOUNT
     );
 endmodule

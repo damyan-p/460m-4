@@ -35,16 +35,19 @@ module meter(
     wire disp_clk;                                  //  approx. 60Hz, for FSM
     wire pulse_clk;                                 //  50% duty cycle, period 2 seconds
     wire sec_clk;                                   //  1 Hz
+    wire n_clk;                                     //  50ms period, for debouncing
     reg [13:0] BCOUNT; //   counting to 9999, in binary
     
     //   decimal representation of BCOUNT
     
-    reg [15:0] COUNT;
+    wire [15:0] COUNT;
     assign COUNT[15:12] = (BCOUNT / 1000);
     assign COUNT[11:8] = ((BCOUNT / 100) % 10);
     assign COUNT[7:4] = ((BCOUNT / 10) % 10);
     assign COUNT[3:0] = BCOUNT % 10;
 
+    wire flash;
+    assign flash = (BCOUNT < 200);
     //  CLK
     
     clk_div dispClk(.clk(clk), .disp_clk(disp_clk),.sec_clk(sec_clk),.n_clk(n_clk)); 
@@ -62,14 +65,13 @@ module meter(
     //  always at posedge clk begin
     
     //  if one of these buttons are high, add to BCOUNT
+    //  always at posedge sec_clk, decrement BCOUNT
     adder addTime(.clk(clk),.add10(add10),.add180(add180),.add200(add200),.add550(add550),.BCOUNT(BCOUNT));
-    //  always at posedge sec_clk
-    decrementer counter(.clk(sec_clk),.BCOUNT(BCOUNT));
     
     //  FSM FOR DISPLAY
     //  traditional FSM, like in Lab 3
     //  if (BCOUNT < 200) an = an_reg & pulse_clk;
-    pulseFSM displayWithPulse(.clk(disp_clk),.pulse(n_clk),.BCOUNT(BCOUNT),.COUNT(COUNT),.an(an), .seg(seg));
+    pulseFSM displayWithPulse(.clk(disp_clk),.pulse(n_clk),.flash(flash),.COUNT(COUNT),.an(an), .seg(seg));
     
     
 endmodule

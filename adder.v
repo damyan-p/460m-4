@@ -26,6 +26,6 @@ module adder(
     input add180,
     input add200,
     input add550,
-    inout BCOUNT
+    input [13:0] BCOUNT
     );
 endmodule
