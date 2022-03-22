@@ -66,7 +66,7 @@ module meter(
     
     //  if one of these buttons are high, add to BCOUNT
     //  always at posedge sec_clk, decrement BCOUNT
-    adder addTime(.clk(clk),.add10(add10),.add180(add180),.add200(add200),.add550(add550),.BCOUNT(BCOUNT));
+    adder addTime(.sec_clk(sec_clk),.clk(clk),.add10(add10),.add180(add180),.add200(add200),.add550(add550),.BCOUNT(BCOUNT),.reset10(reset10),.reset205(reset205));
     
     //  FSM FOR DISPLAY
     //  traditional FSM, like in Lab 3
