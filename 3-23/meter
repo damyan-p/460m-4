@@ -17,30 +17,30 @@ module meter(
     wire pulse_clk;                                 //  50% duty cycle, period 2 seconds
     wire sec_clk;                                   //  1 Hz
     wire n_clk;                                     //  50ms period, for debouncing
+    wire db_clk;
     reg [13:0] BCOUNT = 0; //   counting to 9999, in binary
-    
+    reg btest;
     //   decimal representation of BCOUNT
     
     wire [15:0] COUNT;
     assign COUNT[15:12] = (BCOUNT / 1000);
     assign COUNT[11:8] = ((BCOUNT / 100) % 10);
     assign COUNT[7:4] = ((BCOUNT / 10) % 10);
-    assign COUNT[3:0] = BCOUNT % 10;
-
+    assign COUNT[3:0] = (BCOUNT % 10);
     wire flash;
     assign flash = (BCOUNT < 200);
     //  CLK
     
-    clk_div dispClk(.clk(clk), .disp_clk(disp_clk),.sec_clk(sec_clk),.n_clk(n_clk)); 
+    clk_div dispClk(.clk(clk), .disp_clk(disp_clk),.sec_clk(sec_clk),.n_clk(n_clk),.db_clk(db_clk)); 
     //clk_div_2 dutyCycle50(.clk(clk),.slow_clk(pulse_clk));  
     
     //  DEBOUNCER + SINGLE-PULSER
     //  debouncing and single-pulsing each input
     
-    debounce B0(.clk(clk),.slow_clk(disp_clk),.in(btnU), .out(add10));  
-    debounce B1(.clk(clk),.slow_clk(disp_clk),.in(btnL), .out(add180)); 
-    debounce B2(.clk(clk),.slow_clk(disp_clk),.in(btnR), .out(add200)); 
-    debounce B3(.clk(clk),.slow_clk(disp_clk),.in(btnD), .out(add550)); 
+    debounce B0(.clk(clk),.slow_clk(db_clk),.in(btnU), .out(add10));  
+    debounce B1(.clk(clk),.slow_clk(db_clk),.in(btnL), .out(add180)); 
+    debounce B2(.clk(clk),.slow_clk(db_clk),.in(btnR), .out(add200)); 
+    debounce B3(.clk(clk),.slow_clk(db_clk),.in(btnD), .out(add550)); 
     
 
     //  FSM FOR DISPLAY
@@ -51,35 +51,28 @@ module meter(
 
  //ADDING  
 
+
 always @(posedge sec_clk)begin
-if(reset10) BCOUNT  = 11;//reg number displays a value -1 less than needed
+if(reset10) BCOUNT  = 11;
 if(reset205) BCOUNT = 206;
+//resets work
+  if(BCOUNT > 0) BCOUNT = BCOUNT - 1;
+  if(BCOUNT < 1) BCOUNT = 0;
         if(add10) begin//need to account for saturation @9999 for ulrd
             BCOUNT = BCOUNT + 10;
             if(BCOUNT > 9998) BCOUNT = 9999;
-      
-        end
-    else if(add180)begin
+      end
+    if(add180)begin
         BCOUNT = BCOUNT + 180;
          if(BCOUNT > 9998) BCOUNT = 9999;
- 
     end
-    else if(add200) begin
+     if(add200) begin
         BCOUNT = BCOUNT + 200;
-         if(BCOUNT > 9998) BCOUNT = 9999;
-      
+         if(BCOUNT > 9998) BCOUNT = 9999; 
     end
-    else if(add550) begin
+    if(add550) begin
         BCOUNT = BCOUNT + 550;
-         if(BCOUNT > 9998) BCOUNT = 9999;
-       
-    end
-    BCOUNT = BCOUNT - 1;
-    if(BCOUNT < 1) BCOUNT = 0;
-end
-
-
-
-
-    
+         if(BCOUNT > 9998) BCOUNT = 9999;   
+    end  
+end    
 endmodule
