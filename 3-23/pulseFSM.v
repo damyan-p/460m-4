@@ -34,7 +34,7 @@ module pulseFSM(
     reg [1:0] state;
     reg [1:0] next_state;
     wire [6:0] in0, in1, in2, in3;
-    assign an = flash? (an_reg & pulse): an_reg;//no flash is an_reg
+    assign an = flash? (pulse? (4'b1111):(an_reg)): an_reg;//no flash is an_reg
     assign seg = seg_reg;
     hex_to_sseg bit0(.x(COUNT[3:0]), .r(in0));
     hex_to_sseg bit1(.x(COUNT[7:4]), .r(in1));

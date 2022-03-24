@@ -32,7 +32,7 @@ module meter(
     //  CLK
     
     clk_div dispClk(.clk(clk), .disp_clk(disp_clk),.sec_clk(sec_clk),.n_clk(n_clk),.db_clk(db_clk)); 
-    //clk_div_2 dutyCycle50(.clk(clk),.slow_clk(pulse_clk));  
+    clk_div_2 dutyCycle50(.clk(clk),.slow_clk(pulse_clk));  
     
     //  DEBOUNCER + SINGLE-PULSER
     //  debouncing and single-pulsing each input
@@ -46,7 +46,7 @@ module meter(
     //  FSM FOR DISPLAY
     //  traditional FSM, like in Lab 3
     //  if (BCOUNT < 200) an = an_reg & pulse_clk;
-    pulseFSM displayWithPulse(.clk(disp_clk),.pulse(n_clk),.flash(flash),.COUNT(COUNT),.an(an), .seg(seg));
+    pulseFSM displayWithPulse(.clk(disp_clk),.pulse(pulse_clk),.flash(flash),.COUNT(COUNT),.an(an), .seg(seg));
 
 
  //ADDING  
