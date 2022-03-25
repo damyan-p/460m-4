@@ -13,6 +13,7 @@ module meter(
     output [3:0] an
     );
     wire add10, add180, add200, add550;             //  debounced inputs
+    wire new10, new180, new200, new550;
     wire disp_clk;                                  //  approx. 60Hz, for FSM
     wire pulse_clk;                                 //  50% duty cycle, period 2 seconds
     wire sec_clk;                                   //  1 Hz
@@ -37,11 +38,15 @@ module meter(
     //  DEBOUNCER + SINGLE-PULSER
     //  debouncing and single-pulsing each input
     
-    debounce B0(.clk(clk),.slow_clk(db_clk),.in(btnU), .out(add10));  
-    debounce B1(.clk(clk),.slow_clk(db_clk),.in(btnL), .out(add180)); 
-    debounce B2(.clk(clk),.slow_clk(db_clk),.in(btnR), .out(add200)); 
-    debounce B3(.clk(clk),.slow_clk(db_clk),.in(btnD), .out(add550)); 
+    debounce B0(.clk(clk),.slow_clk(n_clk),.in(btnU), .out(add10));  
+    debounce B1(.clk(clk),.slow_clk(n_clk),.in(btnL), .out(add180)); 
+    debounce B2(.clk(clk),.slow_clk(n_clk),.in(btnR), .out(add200)); 
+    debounce B3(.clk(clk),.slow_clk(n_clk),.in(btnD), .out(add550)); 
     
+    deb2 B4(.in(add10),.clk(clk),.sec_clk(sec_clk),.out(new10));
+    deb2 B5(.in(add180),.clk(clk),.sec_clk(sec_clk),.out(new180));
+    deb2 B6(.in(add200),.clk(clk),.sec_clk(sec_clk),.out(new200));
+    deb2 B7(.in(add550),.clk(clk),.sec_clk(sec_clk),.out(new550));
 
     //  FSM FOR DISPLAY
     //  traditional FSM, like in Lab 3
@@ -53,26 +58,26 @@ module meter(
 
 
 always @(posedge sec_clk)begin
-if(reset10) BCOUNT  = 11;
-if(reset205) BCOUNT = 206;
 //resets work
   if(BCOUNT > 0) BCOUNT = BCOUNT - 1;
   if(BCOUNT < 1) BCOUNT = 0;
-        if(add10) begin//need to account for saturation @9999 for ulrd
+        if(new10) begin//need to account for saturation @9999 for ulrd
             BCOUNT = BCOUNT + 10;
             if(BCOUNT > 9998) BCOUNT = 9999;
       end
-    if(add180)begin
+    if(new180) begin
         BCOUNT = BCOUNT + 180;
          if(BCOUNT > 9998) BCOUNT = 9999;
     end
-     if(add200) begin
+     if(new200) begin
         BCOUNT = BCOUNT + 200;
          if(BCOUNT > 9998) BCOUNT = 9999; 
     end
-    if(add550) begin
+    if(new550) begin
         BCOUNT = BCOUNT + 550;
          if(BCOUNT > 9998) BCOUNT = 9999;   
     end  
+    if(reset10) BCOUNT  = 10;
+    if(reset205) BCOUNT = 205;
 end    
 endmodule

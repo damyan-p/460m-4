@@ -6,7 +6,7 @@ module clk_div(
     output db_clk
     );
     
-    reg [19:0] COUNT; //  100*10^6 / 2^20 = 95.3 Hz, higher than 60Hz
+    reg [18:0] COUNT; //  100*10^6 / 2^20 = 95.3 Hz, higher than 60Hz
                       //  not so high that it causes screen flickering
             
     reg [26:0] SEC_COUNT;  //   1 second per clk
@@ -17,7 +17,7 @@ module clk_div(
     //reg N_COUNT; 
     reg[21:0] DB_COUNT;      
             
-            assign disp_clk = COUNT[19]; // real
+            assign disp_clk = COUNT[18]; // real
             assign n_clk = (N_COUNT == 31'd200000000);//2 seconds
             assign sec_clk = (SEC_COUNT == 27'd100000000);// the stopwatch counter )
             assign db_clk = (DB_COUNT == 22'd2500000);//25ms
